@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.javadocmd.simplelatlng.LatLng;
 
+import it.polito.tdp.metroparis.model.Connessione;
 import it.polito.tdp.metroparis.model.Fermata;
 import it.polito.tdp.metroparis.model.Linea;
 
@@ -68,5 +69,102 @@ public class MetroDAO {
 		return linee;
 	}
 
+	/*
+	 * questo metodo dice dati due archi essi possono essere collegati o no 
+	 */
+	public boolean EsisteCollegamento(Fermata f1, Fermata f2) { 
+		String sql="SELECT COUNT(*) AS cnt "
+				+ "FROM  connessione c "
+				+ "WHERE (c.id_stazP=? AND  c.id_stazA=?) OR (c.id_stazP=? AND  c.id_stazA=?)";
 
-}
+		try {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			
+			st.setInt(1, f1.getIdFermata());
+			st.setInt(2, f2.getIdFermata());
+			st.setInt(3, f2.getIdFermata());
+			st.setInt(4, f1.getIdFermata());
+			
+			ResultSet rs = st.executeQuery();
+		     if(rs.next()) {
+		    	 
+		    	 st.close();
+				 conn.close();
+		    	 return true;
+		     }else {
+		    	 st.close();
+				 conn.close();
+		    	return false; 
+		     }
+			
+				} catch (SQLException e) {
+					e.printStackTrace();
+					throw new RuntimeException("Errore di connessione al Database.");
+				}
+			}	
+	
+	/*
+	 * in questo metodo genero una collezione di connesssioni che sarebbero degli archi
+	 */
+	public List<Connessione> getAllConnessioni(List<Fermata> fermate){
+		String sql ="SELECT * "
+				+ "FROM  connessione "
+				+ "WHERE id_stazP > id_stazA";
+		List<Connessione> connessioni = new ArrayList<>();
+		
+		try {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			
+			ResultSet rs = st.executeQuery();
+			Fermata partenza =null;
+			Fermata arrivo = null;
+			
+			
+		     
+			while(rs.next()) {
+				for(Fermata f: fermate) {
+					if(f.getIdFermata() == rs.getInt("id_stazP"))
+						partenza = f;
+				  }
+				for(Fermata f: fermate) {
+					if(f.getIdFermata() == rs.getInt("id_stazA"))
+						arrivo = f;
+				   }
+				
+				Connessione c = new Connessione(rs.getInt("id_connessione"),null, partenza, arrivo);
+				connessioni.add(c);
+			}
+			conn.close();
+			return connessioni;
+				} catch (SQLException e) {
+					e.printStackTrace();
+					throw new RuntimeException("Errore di connessione al Database.");
+				}
+	      }
+	
+/*	public Fermata getFermata(int idfermata) {
+		Fermata f = null;
+		String sql="SELECT * "
+				+ "FROM  fermata "
+				+ "WHERE id_fermata=?";
+		try {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			
+			ResultSet rs = st.executeQuery();
+		     
+			if(rs.next()) {
+				f = new Fermata()
+			}
+			
+			
+				} catch (SQLException e) {
+					e.printStackTrace();
+					throw new RuntimeException("Errore di connessione al Database.");
+				}
+		
+		return f;
+	  }*/
+   } 
