@@ -11,10 +11,12 @@ import org.jgrapht.event.VertexTraversalEvent;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 import org.jgrapht.traverse.BreadthFirstIterator;
+import org.jgrapht.traverse.DepthFirstIterator;
 
 import it.polito.tdp.metroparis.db.MetroDAO;
 
 public class Model {
+	
 	Graph<Fermata, DefaultEdge> grafo;
 	Map<Fermata, Fermata> predecessori;
 	
@@ -38,7 +40,9 @@ public class Model {
 					this.grafo.addEdge(f1, f2);
 				}
 			}
-		}*/
+		}
+		questo metodo richiede molto tempo
+		*/
 		
 		List<Connessione> allConnection = dao.getAllConnessioni(fermate);
 		for(Connessione c: allConnection) {
@@ -50,74 +54,52 @@ public class Model {
 		System.out.println("# archi: "+ this.grafo.edgeSet().size());
 		
 		//ora vogliamo esplorare il grafo
-	Fermata f;
-	Set<DefaultEdge> archi = grafo.edgesOf(f);
+	//Fermata f = null;
+	/*Set<DefaultEdge> archi = grafo.edgesOf(f);
 	for(DefaultEdge e: archi) {
 		Fermata f1= grafo.getEdgeSource(e);
 		Fermata f2= grafo.getEdgeTarget(e);
 		
-		/*if(f.equals(f1)) {
-			//f2 è quello che mi serve, visto che il grafo non è orientato allora è nesserio queste verifiche
+		if(f.equals(f1)) {
+			//f2 è quello che mi serve, visto che il grafo non è orientato allora è necessario queste verifiche
 		}else {
 			// f1 è quello che mi serve
-		}*/
+		}
 		//oppure 
 		Fermata f3= Graphs.getOppositeVertex(grafo, e, f);
 	  }
 	
+	List<Fermata> adiacenti = Graphs.successorListOf(this.grafo, f) ;
+	List<Fermata> adiacentiPrec = Graphs.predecessorListOf(this.grafo, f) ;*/
 	}
-	//	Fermata f;
-	//	Set<DefaultEdge> archi =grafo.edgesOf(f);
-		List<Fermata> adiacenti = Graphs.successorListOf(this.grafo, f) ;
+	
 		
-		public List<Fermata> fermateRaggiungibili(Fermata f) {
+		public List<Fermata> fermateRaggiungibili(Fermata partenza) {
+			List<Fermata>  result = new ArrayList<>();
 			
-			BreadthFirstIterator<Fermata, DefaultEdge> bfv = new BreadthFirstIterator<>(grafo, f);
-			
-			bfv.addTraversalListener(new TraversalListener<Fermata, DefaultEdge>() {
-
-				@Override
-				public void connectedComponentFinished(ConnectedComponentTraversalEvent e) {
-					// TODO Auto-generated method stub
-					
-				}
-
-				@Override
-				public void connectedComponentStarted(ConnectedComponentTraversalEvent e) {
-					// TODO Auto-generated method stub
-					
-				}
-
-				@Override
-				public void edgeTraversed(EdgeTraversalEvent<DefaultEdge> e) {
-					// TODO Auto-generated method stub
-					
-				}
-
-				@Override
-				public void vertexTraversed(VertexTraversalEvent<Fermata> e) {
-					// TODO Auto-generated method stub
-					
-				}
-
-				@Override
-				public void vertexFinished(VertexTraversalEvent<Fermata> e) {
-					// TODO Auto-generated method stub
-					
-				}
-			});
-			List<Fermata> result = new ArrayList<Fermata>();
+			//visita in ampiezza
+		/*	BreadthFirstIterator<Fermata, DefaultEdge> bfv = new BreadthFirstIterator<>(this.grafo,partenza );
 			
 			while(bfv.hasNext()) {
-				Fermata f2 = bfv.next();
-				result.add(f2);
+				Fermata f = bfv.next();
+				result.add(f);
+			}*/
+			
+			//visita in profondita
+			
+			DepthFirstIterator<Fermata,DefaultEdge > dfv = new DepthFirstIterator< >(this.grafo, partenza);
+			
+			while(dfv.hasNext()) {
+				Fermata f = dfv.next();
+				result.add(f);
 			}
 			
+			//ritroviamo gli stessi vertici ma in un ordine diverso
 			return result;
 		}
 		
 		
-		public Fermata GetFermataByName(String nome) {
+		public Fermata GetVertexByName(String nome) {
 			
 			for(Fermata f: this.grafo.vertexSet()) {
 				if(f.getNome().equals(nome)) {

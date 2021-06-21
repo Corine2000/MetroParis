@@ -87,7 +87,7 @@ public class MetroDAO {
 			st.setInt(4, f1.getIdFermata());
 			
 			ResultSet rs = st.executeQuery();
-		     if(rs.next()) {
+		     if(rs.next()) { //se esiste almeno una riga allora esse sono collegate
 		    	 
 		    	 st.close();
 				 conn.close();
@@ -134,6 +134,7 @@ public class MetroDAO {
 				   }
 				
 				Connessione c = new Connessione(rs.getInt("id_connessione"),null, partenza, arrivo);
+				//perche ora il codice della linea non ci interessa
 				connessioni.add(c);
 			}
 			conn.close();
